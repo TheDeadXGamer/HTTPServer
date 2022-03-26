@@ -62,21 +62,21 @@ function getFunc(request, response) {
                     console.error(PoolError);
                     return;
                 }
-
-                const ID = getparams.get('ID');
-                const Förnamn = getparams.get('Firstnamn');
-                const Efternamn = getparams.get('Efternamn');
+                
+                const ID = decodeURIComponent(getparams.get('ID'));
+                const Förnamn = decodeURIComponent(getparams.get('Firstnamn'));
+                const Efternamn = decodeURIComponent(getparams.get('Efternamn'));
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
                 connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
-                    , (QueryError, Results) => {
+                    , (QueryError, Results, Fields) => {
                         if (QueryError) {
                             console.error(QueryError);
                             return;
                         }
 
-                        if (!Results[2]){
+                        if (!Results[0]){
+                            console.log(Fields);
                             console.error('SQL error: Result rows are undefined. Faulty "Namn" value.');
-                            console.log(Results[2]);
                             GTG.HTTPResponse(response, 2); //Send "bad" response
                             return;
                         }
