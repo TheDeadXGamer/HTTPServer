@@ -18,7 +18,7 @@ const GTG = require('./HTTPFunctions.js')
 });
  * ```
  */
-const pool = sql.createPool({   
+const pool = sql.createPool({
     "host": "localhost",
     "port": "3306",
     "user": "nodejs",
@@ -46,8 +46,8 @@ function getFunc(request, response) {
 
         request.on('readable', () => {
             var getparams = url.searchParams; //Fetch URL parameters
-            
-            if(!getparams) return;
+
+            if (!getparams) return;
 
             console.log(getparams);
             if (getparams.get('key') != '987654321') {
@@ -62,35 +62,28 @@ function getFunc(request, response) {
                     console.error(PoolError);
                     return;
                 }
-                
+
+                console.log(getparams.get('Firstnamn'));
+
                 const ID = decodeURIComponent(getparams.get('ID'));
                 const Förnamn = decodeURIComponent(getparams.get('Firstnamn'));
                 const Efternamn = decodeURIComponent(getparams.get('Efternamn'));
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
+
+                if (!ID || !Förnamn || !Efternamn || !Mailadress) {
+                    console.log(ID, Förnamn, Efternamn, Mailadress);
+                    console.error('Client Error: One or more URL parameters are undefined');
+                    GTG.HTTPResponse(response, 2);
+                    return;
+                }
+
                 connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
-                    , (QueryError, Results, Fields) => {
+                    , (QueryError, Results) => {
                         if (QueryError) {
                             console.error(QueryError);
                             return;
                         }
 
-                        if (!Results[0]){
-                            console.log(Fields);
-                            console.error('SQL error: Result rows are undefined. Faulty "Namn" value.');
-                            GTG.HTTPResponse(response, 2); //Send "bad" response
-                            return;
-                        }
-
-                        /*
-                        var ResultJSON = JSON.parse(Results[0].Books);
-                        var keyToDelete = 'Percy';
-                        delete ResultJSON[keyToDelete];
-                        console.log(ResultJSON);
-                        var keyToAdd = 'Percy';
-                        var valueToAdd = '2839210';
-                        ResultJSON[keyToAdd] = valueToAdd;
-                        console.log(ResultJSON);
-                        */
                         console.log(`${Results[0].Namn} har lånat en bok!`);
                         GTG.HTTPResponse(response, 0); //Send back "good" response
                     });
