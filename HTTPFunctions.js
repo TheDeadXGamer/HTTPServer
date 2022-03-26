@@ -26,7 +26,7 @@ module.exports.HTTPResponse = (response, StatusCode) => {
         
         case 2:     //For successful request but unsuccessful query
             response.writeHead(400, {'Content-Type': 'text/html'});
-            response.write('Error 400: Invalid values given. Check your syntax.');
+            response.write('Error 400: Invalid values given or missing parameters. Check your syntax.');
             response.end();
             return;
     }
