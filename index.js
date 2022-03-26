@@ -63,11 +63,11 @@ function getFunc(request, response) {
                     return;
                 }
 
-                console.log(getparams.get('Firstnamn'));
+                console.log(getparams.get('Efternamn'));
 
-                const ID = decodeURIComponent(getparams.get('ID'));
-                const Förnamn = decodeURIComponent(getparams.get('Firstnamn'));
-                const Efternamn = decodeURIComponent(getparams.get('Efternamn'));
+                const ID = getparams.get('ID');
+                const Förnamn = getparams.get('Firstnamn');
+                const Efternamn = getparams.get('Efternamn');
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
 
                 if (!ID || !Förnamn || !Efternamn || !Mailadress) {
@@ -84,7 +84,7 @@ function getFunc(request, response) {
                             return;
                         }
 
-                        console.log(`${Results[0].Namn} har lånat en bok!`);
+                        //console.log(`${Results[0].Namn} har lånat en bok!`);
                         GTG.HTTPResponse(response, 0); //Send back "good" response
                     });
                 connection.release();
