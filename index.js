@@ -63,15 +63,13 @@ function getFunc(request, response) {
                     return;
                 }
 
-                console.log(getparams.get('Efternamn'));
-
                 const ID = getparams.get('ID');
                 const Förnamn = getparams.get('Firstnamn');
                 const Efternamn = getparams.get('Efternamn');
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
 
                 if (!ID || !Förnamn || !Efternamn || !Mailadress) {
-                    console.log(ID, Förnamn, Efternamn, Mailadress);
+                    console.log(`ID: ${ID}`, `Förnamn: ${Förnamn}`, `Efternamn: ${Efternamn}`, `Mailadress: ${Mailadress}`);
                     console.error('Client Error: One or more URL parameters are undefined');
                     GTG.HTTPResponse(response, 2);
                     return;
