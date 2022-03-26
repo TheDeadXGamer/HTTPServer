@@ -19,7 +19,7 @@ const GTG = require('./HTTPFunctions.js')
  * ```
  */
 const pool = sql.createPool({   
-    "host": "172.16.0.19",
+    "host": "localhost",
     "port": "3306",
     "user": "nodejs",
     "password": "kolja50",
