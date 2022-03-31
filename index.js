@@ -74,17 +74,31 @@ function getFunc(request, response) {
                     GTG.HTTPResponse(response, 2);
                     return;
                 }
+                
+                connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${ID}';`
+                , (SelectError, SelectResult) => {
+                    if (SelectError){
+                        console.error(SelectError);
+                        return;
+                    }
 
-                connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
-                    , (QueryError, Results) => {
-                        if (QueryError) {
-                            console.error(QueryError);
-                            return;
-                        }
+                    if (SelectResult[0]){
+                        GTG.HTTPResponse(response, 2);
+                        console.error('Client Error: ID already exists in database');
+                        return;
+                    }
 
-                        //console.log(`${Results[0].Namn} har lånat en bok!`);
-                        GTG.HTTPResponse(response, 0); //Send back "good" response
-                    });
+                    connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
+                        , (InsertError) => {
+                            if (InsertError) {
+                                console.error(InsertError);
+                                return;
+                            }
+
+                            //console.log(`${Results[0].Namn} har lånat en bok!`);
+                            GTG.HTTPResponse(response, 0); //Send back "good" response
+                        });
+                });
                 connection.release();
             });
         });
