@@ -42,13 +42,17 @@ const pool = sql.createPool({
  */
 function getFunc(request, response) {
     if (request.method == 'GET') {
+
+        //Create URL object by using the url sent from client
         const url = new URL(`http://localhost:8080${request.url}`);
 
+        //On loaded page
         request.on('readable', () => {
             var getparams = url.searchParams; //Fetch URL parameters
 
             if (!getparams) return;
 
+            //Check for unauthorised access. e.g Check if the 'key' is right.
             console.log(getparams);
             if (getparams.get('key') != '987654321') {
                 console.error('Error 401: Unauthorised access detected.');
@@ -57,17 +61,20 @@ function getFunc(request, response) {
                 return;
             }
 
+            //Fetch pool connection
             pool.getConnection((PoolError, connection) => {
                 if (PoolError) {
                     console.error(PoolError);
                     return;
                 }
 
+                //Get necessary parameters
                 const ID = getparams.get('ID');
                 const Förnamn = getparams.get('Firstnamn');
                 const Efternamn = getparams.get('Efternamn');
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
 
+                //Check if all necessary parameters exist
                 if (!ID || !Förnamn || !Efternamn || !Mailadress) {
                     console.log(`ID: ${ID}`, `Förnamn: ${Förnamn}`, `Efternamn: ${Efternamn}`, `Mailadress: ${Mailadress}`);
                     console.error('Client Error: One or more URL parameters are undefined');
@@ -75,19 +82,22 @@ function getFunc(request, response) {
                     return;
                 }
                 
+                //Check if ID already exists in DB
                 connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${ID}';`
                 , (SelectError, SelectResult) => {
                     if (SelectError){
                         console.error(SelectError);
                         return;
                     }
-
+                    
+                    //Query returns an ID?
                     if (SelectResult[0]){
                         GTG.HTTPResponse(response, 2);
                         console.error('Client Error: ID already exists in database');
                         return;
                     }
-
+                    
+                    //Insert parameters into new row
                     connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
                         , (InsertError) => {
                             if (InsertError) {
@@ -95,20 +105,18 @@ function getFunc(request, response) {
                                 return;
                             }
 
-                            //console.log(`${Results[0].Namn} har lånat en bok!`);
                             GTG.HTTPResponse(response, 0); //Send back "good" response
                         });
                 });
+                //Release the pool connection
                 connection.release();
             });
         });
     }
 }
 
-//Create an HTTP Server and make it listen at port 8080
-
 /**
  * Server object using `getFunc` as callback
  */
-const server = http.createServer(getFunc);
+const server = http.createServer(getFunc);  //Create HTTP server that listens on port 8080
 server.listen(8080);
