@@ -73,41 +73,47 @@ function getFunc(request, response) {
                 const Förnamn = getparams.get('Firstnamn');
                 const Efternamn = getparams.get('Efternamn');
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
+                const Mode = getparams.get('Mode');
 
                 //Check if all necessary parameters exist
-                if (!ID || !Förnamn || !Efternamn || !Mailadress) {
+                if (!ID || !Förnamn || !Efternamn || !Mailadress || !Mode) {
                     console.log(`ID: ${ID}`, `Förnamn: ${Förnamn}`, `Efternamn: ${Efternamn}`, `Mailadress: ${Mailadress}`);
                     console.error('Client Error: One or more URL parameters are undefined');
                     GTG.HTTPResponse(response, 2);
                     return;
                 }
-                
-                //Check if ID already exists in DB
-                connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${ID}';`
-                , (SelectError, SelectResult) => {
-                    if (SelectError){
-                        console.error(SelectError);
-                        return;
-                    }
-                    
-                    //Query returns an ID?
-                    if (SelectResult[0]){
-                        GTG.HTTPResponse(response, 2);
-                        console.error('Client Error: ID already exists in database');
-                        return;
-                    }
-                    
-                    //Insert parameters into new row
-                    connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
-                        , (InsertError) => {
-                            if (InsertError) {
-                                console.error(InsertError);
-                                return;
-                            }
 
-                            GTG.HTTPResponse(response, 0); //Send back "good" response
-                        });
-                });
+                //Is the switch in Insert mode?
+                if (Mode == 'Insert') {
+
+                    //Check if ID already exists in DB
+                    connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${ID}';`, (SelectError, SelectResult) => {
+
+                        if (SelectError) {
+                            console.error(SelectError);
+                            return;
+                        }
+
+                        //Query returns an ID?
+                        if (SelectResult[0]) {
+                            GTG.HTTPResponse(response, 2);
+                            console.error('Client Error: ID already exists in database');
+                            return;
+                        }
+
+                        //Insert parameters into new row
+                        connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
+                            , (InsertError) => {
+                                if (InsertError) {
+                                    console.error(InsertError);
+                                    return;
+                                }
+
+                                GTG.HTTPResponse(response, 0); //Send back "good" response
+                            });
+                    });
+                }
+
                 //Release the pool connection
                 connection.release();
             });
