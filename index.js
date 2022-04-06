@@ -48,13 +48,13 @@ function getFunc(request, response) {
 
         //On loaded page
         request.on('readable', () => {
-            var getparams = url.searchParams; //Fetch URL parameters
+            var Urlparameters = url.searchParams; //Fetch URL parameters
 
-            if (!getparams) return;
+            if (!Urlparameters) return;
 
             //Check for unauthorised access. e.g Check if the 'key' is right.
-            console.log(getparams);
-            if (getparams.get('key') != '987654321') {
+            console.log(Urlparameters);
+            if (Urlparameters.get('key') != '987654321') {
                 console.error('Error 401: Unauthorised access detected.');
                 console.log(request.socket.remoteAddress);
                 GTG.HTTPResponse(response, 1); //Send "illegal" response
@@ -69,11 +69,11 @@ function getFunc(request, response) {
                 }
 
                 //Get necessary parameters
-                const ID = getparams.get('ID');
-                const Förnamn = getparams.get('Firstnamn');
-                const Efternamn = getparams.get('Efternamn');
+                const ID = Urlparameters.get('ID');
+                const Förnamn = Urlparameters.get('Firstnamn');
+                const Efternamn = Urlparameters.get('Efternamn');
                 const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
-                const Mode = getparams.get('Mode');
+                const Mode = Urlparameters.get('Mode');
 
                 //Check if all necessary parameters exist
                 if (!ID || !Förnamn || !Efternamn || !Mailadress || !Mode) {
