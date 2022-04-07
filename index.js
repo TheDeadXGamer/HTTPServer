@@ -4,6 +4,7 @@
 const sql = require('mysql2');
 const http = require('http');
 const GTG = require('./HTTPFunctions.js')
+const Joel = require('./Methods.js')
 
 /**
  * Use settings to create an SQL pool
@@ -53,7 +54,6 @@ function getFunc(request, response) {
             if (!Urlparameters) return;
 
             //Check for unauthorised access. e.g Check if the 'key' is right.
-            console.log(Urlparameters);
             if (Urlparameters.get('key') != '987654321') {
                 console.error('Error 401: Unauthorised access detected.');
                 console.log(request.socket.remoteAddress);
@@ -61,62 +61,22 @@ function getFunc(request, response) {
                 return;
             }
 
-            //Fetch pool connection
-            pool.getConnection((PoolError, connection) => {
-                if (PoolError) {
-                    console.error(PoolError);
+            const Method = Urlparameters.get('Method');
+
+            switch(Method){
+
+                case 'Initial':
+                    Joel.Initial_Request(response, Urlparameters, pool);
                     return;
-                }
-
-                //Get necessary parameters
-                const ID = Urlparameters.get('ID');
-                const Förnamn = Urlparameters.get('Firstnamn');
-                const Efternamn = Urlparameters.get('Efternamn');
-                const Mailadress = `${Förnamn}.${Efternamn}@gtg.se`;
-                const Mode = Urlparameters.get('Mode');
-
-                //Check if all necessary parameters exist
-                if (!ID || !Förnamn || !Efternamn || !Mailadress || !Mode) {
-                    console.log(`ID: ${ID}`, `Förnamn: ${Förnamn}`, `Efternamn: ${Efternamn}`, `Mailadress: ${Mailadress}`);
-                    console.error('Client Error: One or more URL parameters are undefined');
-                    GTG.HTTPResponse(response, 2);
+                
+                case 'Loan':
+                    Joel.Loan_Method(response, Urlparameters, pool);
                     return;
-                }
-
-                //Is the switch in Insert mode?
-                if (Mode == 'Insert') {
-
-                    //Check if ID already exists in DB
-                    connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${ID}';`, (SelectError, SelectResult) => {
-
-                        if (SelectError) {
-                            console.error(SelectError);
-                            return;
-                        }
-
-                        //Query returns an ID?
-                        if (SelectResult[0]) {
-                            GTG.HTTPResponse(response, 2);
-                            console.error('Client Error: ID already exists in database');
-                            return;
-                        }
-
-                        //Insert parameters into new row
-                        connection.query(`INSERT INTO \`elever\` (\`ID\`,\`Förnamn\`, \`Efternamn\`, \`Klass\`, \`Mailadress\`) VALUES ('${ID}', '${Förnamn}', '${Efternamn}', 'Rhea', '${Mailadress}');`
-                            , (InsertError) => {
-                                if (InsertError) {
-                                    console.error(InsertError);
-                                    return;
-                                }
-
-                                GTG.HTTPResponse(response, 0); //Send back "good" response
-                            });
-                    });
-                }
-
-                //Release the pool connection
-                connection.release();
-            });
+                
+                case 'Return':
+                    Joel.Return_Method(response, Urlparameters, pool);
+                    return;
+            }
         });
     }
 }

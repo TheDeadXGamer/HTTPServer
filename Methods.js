@@ -12,14 +12,15 @@ const GTG = require('./HTTPFunctions.js');
  * @param {http.OutgoingMessage} response 
  * @param {URLSearchParams} Urlparameters
  * @param {sql.Pool} Pool
+ * @returns {void}
  */
 module.exports.Initial_Request = (response, Urlparameters, Pool) => {
-    
+
     //Fetch ID parameter
     const ID = Urlparameters.get('ID');
 
     //If the parameter can't be found
-    if(!ID){
+    if (!ID) {
         console.error('Client Error: One or more URL parameters are undefined');
         GTG.HTTPResponse(response, 2);
         return;
@@ -29,7 +30,7 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
     Pool.getConnection((PoolError, Connection) => {
 
         //If something goes wrong with the pool connection
-        if(PoolError){
+        if (PoolError) {
             console.error(PoolError);
             GTG.HTTPResponse(response, 2);
             return;
@@ -39,14 +40,14 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
         Connection.query(`SELECT * FROM \`elever\` WHERE ID = ${ID}`, (QueryError, QueryResult) => {
 
             //If something goes wrong with the Query
-            if(QueryError){
+            if (QueryError) {
                 console.error(QueryError);
                 GTG.HTTPResponse(response, 2);
                 return;
             }
-            
+
             //If the ID doesn't exist in the DB
-            if(!QueryResult[0]){
+            if (!QueryResult[0]) {
                 console.error('Client Error: Given ID does not match any in the database.');
                 GTG.HTTPResponse(response, 2);
                 return;
@@ -57,4 +58,201 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
         GTG.HTTPResponse(response, 0);
         Connection.release();
     });
-} 
+}
+
+/**
+ * Function for handling when a student loans a book
+ * Sends back either successful or unsuccessful operation using HTTP status codes
+ * 
+ * @param {http.OutgoingMessage} response 
+ * @param {URLSearchParams} Urlparameters
+ * @param {sql.Pool} Pool
+ * @returns {void}
+ */
+module.exports.Loan_Method = (response, Urlparameters, Pool) => {
+
+    //Fetch the student and book ID
+    const StudentID = Urlparameters.get('ID');
+    const BookID = Urlparameters.get('BookID');
+
+    //If the parameters haven't been set
+    if (!StudentID || !BookID) {
+        console.error('Client Error: One or more URL parameters are undefined');
+        GTG.HTTPResponse(response, 2);
+        return;
+    }
+
+    //Get a connection from the pool
+    Pool.getConnection((PoolError, Connection) => {
+
+        //If something goes wrong with establishing the connection
+        if (PoolError) {
+            console.error(PoolError);
+            GTG.HTTPResponse(response, 2);
+            return;
+        }
+
+        //Check to see if the student exists. Gets executed in a previous function.
+        //Is just an additional check to see that the ESP doesn't send a bad value
+        Connection.query(`SELECT * FROM \`elever\` WHERE ID = '${StudentID}';`, (SelectStudentError, SelectStudentResult) => {
+
+            //If th query is unsuccessful for whatever reason
+            if (SelectStudentError) {
+                console.error(SelectStudentError);
+                GTG.HTTPResponse(response, 2);
+                return;
+            }
+
+            //Shouldn't ever occur, however in the event that the ESP sends a bad value
+            if (!SelectStudentResult[0]) {
+                console.error('Client Error: Given ID does not match any in the database.');
+                GTG.HTTPResponse(response, 3);
+                return;
+            }
+
+            //Perform query to check for the bookid in the book table
+            Connection.query(`SELECT * FROM \`böcker\` WHERE ID = '${BookID}';`, (SelectBookError, SelectBookResult) => {
+
+                //If the query goes wrong
+                if (SelectBookError) {
+                    console.error(SelectBookError);
+                    GTG.HTTPResponse(response, 2);
+                    return;
+                }
+
+                //If the book can't be found in the book table
+                if (!SelectBookResult[0]) {
+                    console.error('Client Error: Given ID does not match any in the database.');
+                    GTG.HTTPResponse(response, 2);
+                    return;
+                }
+
+                Connection.query(`SELECT * FROM \`innehav\` WHERE BokID = ${BookID}`, (SelectInnehavError, SelectInnehavResult) => {
+                    
+                    //If the query goes wrong
+                    if (SelectInnehavError) {
+                        console.error(SelectBookError);
+                        GTG.HTTPResponse(response, 2);
+                        return;
+                    }
+
+                    //If the book can already be found in the table
+                    if (SelectInnehavResult[0]) {
+                        console.error('General Error: Book has already been loaned');
+                        GTG.HTTPResponse(response, 2);
+                        return;
+                    }
+
+                    //Insert values into the table
+                    Connection.query(`INSERT INTO \`innehav\` (\`Elev\`, \`Boknamn\`,\`BokID\`, \`Utdatum\`, \`Indatum\`)
+                    VALUES ('${SelectStudentResult[0].Namn}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${new Date.getFullYear()}-06-16')`, (InsertError) => {
+
+                        //If it can't be inserted
+                        if (InsertError) {
+                            console.error('Unknown server error: INSERT function rejected request.');
+                            GTG.HTTPResponse(response, 3);
+                        }
+                    });
+                });
+            });
+        });
+    });
+}
+
+/**
+ *  
+ * @param {http.OutgoingMessage} response 
+ * @param {URLSearchParams} Urlparameters
+ * @param {sql.Pool} Pool
+ * @returns {void}
+ */
+module.exports.Return_Method = (response, Urlparameters, Pool) => {
+
+    //Fetch ID parameters
+    const StudentID = Urlparameters.get('ID');
+    const BookID = Urlparameters.get('BookID');
+
+    //If the parameter can't be found
+    if (!StudentID || !BookID) {
+        console.error('Client Error: One or more URL parameters are undefined');
+        GTG.HTTPResponse(response, 2);
+        return;
+    }
+
+    //Get a connection from the pool
+    Pool.getConnection((PoolError, Connection) => {
+        //If something goes wrong with establishing the connection
+        if (PoolError) {
+            console.error(PoolError);
+            GTG.HTTPResponse(response, 2);
+            return;
+        }
+
+        //Check to see if the student exists. Gets executed in a previous function.
+        //Is just an additional check to see that the ESP doesn't send a bad value
+        Connection.query(`SELECT * FROM \`elever\` WHERE ID = '${StudentID}';`, (SelectStudentError, SelectStudentResult) => {
+
+            //If th query is unsuccessful for whatever reason
+            if (SelectStudentError) {
+                console.error(SelectStudentError);
+                GTG.HTTPResponse(response, 2);
+                return;
+            }
+
+            //Shouldn't ever occur, however in the event that the ESP sends a bad value
+            if (!SelectStudentResult[0]) {
+                console.error('Client Error: Given ID does not match any in the database.');
+                GTG.HTTPResponse(response, 3);
+                return;
+            }
+
+            //Perform query to check for the bookid in the book table
+            Connection.query(`SELECT * FROM \`böcker\` WHERE ID = '${BookID}';`, (SelectBookError, SelectBookResult) => {
+
+                //If the query goes wrong
+                if (SelectBookError) {
+                    console.error(SelectBookError);
+                    GTG.HTTPResponse(response, 2);
+                    return;
+                }
+
+                //If the book can't be found in the book table
+                if (!SelectBookResult[0]) {
+                    console.error('Client Error: Given ID does not match any in the database.');
+                    GTG.HTTPResponse(response, 2);
+                    return;
+                }
+
+                Connection.query(`SELECT * FROM \`innehav\` WHERE BokID = ${BookID}`, (SelectInnehavError, SelectInnehavResult) => {
+
+                    //If the query goes wrong
+                    if (SelectInnehavError) {
+                        console.error(SelectBookError);
+                        GTG.HTTPResponse(response, 2);
+                        return;
+                    }
+
+                    //If the book can't be found in the table
+                    if (!SelectInnehavResult[0]) {
+                        console.error('General Error: Book has not been loaned yet.');
+                        GTG.HTTPResponse(response, 2);
+                        return;
+                    }
+
+                    Connection.query(`DELETE FROM \`innehav\` WHERE BokID = ${BookID}`, (DeleteError) => {
+
+                        //If the query goes wrong
+                        if (DeleteError) {
+                            console.error(SelectBookError);
+                            GTG.HTTPResponse(response, 2);
+                            return;
+                        }
+                    
+                        GTG.HTTPResponse(response, 0);
+                    });
+                });
+            });
+        });
+        Connection.release();
+    });
+}
