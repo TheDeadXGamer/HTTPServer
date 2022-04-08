@@ -49,8 +49,11 @@ function getFunc(request, response) {
 
         //On loaded page
         request.on('readable', () => {
-            var Urlparameters = url.searchParams; //Fetch URL parameters
 
+            //Fetch URL parameters
+            var Urlparameters = url.searchParams; 
+
+            //If no parameters are set
             if (!Urlparameters) return;
 
             //Check for unauthorised access. e.g Check if the 'key' is right.
@@ -61,20 +64,30 @@ function getFunc(request, response) {
                 return;
             }
 
+            //Get the "Method" parameter
             const Method = Urlparameters.get('Method');
 
+            //Check what value the parameter has
             switch(Method){
 
+                //The first request sent from the ESP
                 case 'Initial':
                     Joel.Initial_Request(response, Urlparameters, pool);
                     return;
                 
+                //The mode for loaning a book
                 case 'Loan':
                     Joel.Loan_Method(response, Urlparameters, pool);
                     return;
                 
+                //The mode for returning a loaned book
                 case 'Return':
                     Joel.Return_Method(response, Urlparameters, pool);
+                    return;
+
+                default:
+                    GTG.HTTPResponse(response, 2);
+                    console.error('Client Error: Chosen method is not known.')
                     return;
             }
         });
