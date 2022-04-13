@@ -225,7 +225,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
                     return;
                 }
 
-                Connection.query(`SELECT * FROM \`innehav\` WHERE BokID = ${BookID}`, (SelectInnehavError, SelectInnehavResult) => {
+                Connection.query(`SELECT * FROM \`innehav\` WHERE \`BokID\` = '${BookID}'`, (SelectInnehavError, SelectInnehavResult) => {
 
                     //If the query goes wrong
                     if (SelectInnehavError) {
