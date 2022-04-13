@@ -45,7 +45,7 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
                 GTG.HTTPResponse(response, 2);
                 return;
             }
-            
+
             console.log(QueryResult[0]);
 
             //If the ID doesn't exist in the DB
@@ -245,7 +245,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
 
                         //If the query goes wrong
                         if (DeleteError) {
-                            console.error(SelectBookError);
+                            console.error(DeleteError);
                             GTG.HTTPResponse(response, 2);
                             return;
                         }
