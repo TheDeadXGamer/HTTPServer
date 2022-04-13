@@ -229,7 +229,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
 
                     //If the query goes wrong
                     if (SelectInnehavError) {
-                        console.error(SelectBookError);
+                        console.error(SelectInnehavError);
                         GTG.HTTPResponse(response, 2);
                         return;
                     }
