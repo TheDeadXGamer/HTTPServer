@@ -241,7 +241,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
                         return;
                     }
 
-                    Connection.query(`DELETE FROM \`innehav\` WHERE BokID = ${BookID}`, (DeleteError) => {
+                    Connection.query(`DELETE FROM \`innehav\` WHERE \`BokID\` = '${BookID}'`, (DeleteError) => {
 
                         //If the query goes wrong
                         if (DeleteError) {
