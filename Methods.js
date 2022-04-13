@@ -45,11 +45,11 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
                 GTG.HTTPResponse(response, 2);
                 return;
             }
-            
+            isN
             console.log(QueryResult[0]);
 
             //If the ID doesn't exist in the DB
-            if (!QueryResult[0].ID != ID) {
+            if (!QueryResult.length) {
                 console.error('Client Error: Given ID does not match any in the database.');
                 GTG.HTTPResponse(response, 2);
                 return;
@@ -106,7 +106,7 @@ module.exports.Loan_Method = (response, Urlparameters, Pool) => {
             }
 
             //Shouldn't ever occur, however in the event that the ESP sends a bad value
-            if (!SelectStudentResult[0]) {
+            if (!SelectStudentResult.length) {
                 console.error('Client Error: Given ID does not match any in the database.');
                 GTG.HTTPResponse(response, 3);
                 return;
@@ -139,7 +139,7 @@ module.exports.Loan_Method = (response, Urlparameters, Pool) => {
                     }
 
                     //If the book can already be found in the table
-                    if (SelectInnehavResult[0]) {
+                    if (SelectInnehavResult.length) { 
                         console.error('General Error: Book has already been loaned');
                         GTG.HTTPResponse(response, 2);
                         return;
@@ -202,7 +202,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
             }
 
             //Shouldn't ever occur, however in the event that the ESP sends a bad value
-            if (!SelectStudentResult[0]) {
+            if (!SelectStudentResult.length) {
                 console.error('Client Error: Given ID does not match any in the database.');
                 GTG.HTTPResponse(response, 3);
                 return;
@@ -219,7 +219,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
                 }
 
                 //If the book can't be found in the book table
-                if (!SelectBookResult[0]) {
+                if (!SelectBookResult.length) {
                     console.error('Client Error: Given ID does not match any in the database.');
                     GTG.HTTPResponse(response, 2);
                     return;
@@ -235,7 +235,7 @@ module.exports.Return_Method = (response, Urlparameters, Pool) => {
                     }
 
                     //If the book can't be found in the table
-                    if (!SelectInnehavResult[0]) {
+                    if (!SelectInnehavResult.length) {
                         console.error('General Error: Book has not been loaned yet.');
                         GTG.HTTPResponse(response, 2);
                         return;
