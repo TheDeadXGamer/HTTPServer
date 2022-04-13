@@ -45,7 +45,9 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
                 GTG.HTTPResponse(response, 2);
                 return;
             }
-
+            
+            console.log(QueryResult[0]);
+            
             //If the ID doesn't exist in the DB
             if (!QueryResult[0]) {
                 console.error('Client Error: Given ID does not match any in the database.');
