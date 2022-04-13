@@ -37,7 +37,7 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
         }
 
         //Perform query to check if the ID exists in the DB
-        Connection.query(`SELECT * FROM \`elever\` WHERE ID = ${ID}`, (QueryError, QueryResult) => {
+        Connection.query(`SELECT * FROM \`elever\` WHERE ID = '${ID}'`, (QueryError, QueryResult) => {
 
             //If something goes wrong with the Query
             if (QueryError) {
