@@ -75,14 +75,8 @@ function getFunc(request, response) {
                     Joel.Initial_Request(response, Urlparameters, pool);
                     return;
                 
-                //The mode for loaning a book
-                case 'Loan':
-                    Joel.Loan_Method(response, Urlparameters, pool);
-                    return;
-                
-                //The mode for returning a loaned book
-                case 'Return':
-                    Joel.Return_Method(response, Urlparameters, pool);
+                case 'Main':
+                    Joel.Check_Method(response, Urlparameters, pool);
                     return;
 
                 default:
