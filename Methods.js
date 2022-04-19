@@ -200,7 +200,11 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
                         if (InsertError) {
                             console.error('Unknown server error: INSERT function rejected request.');
                             GTG.HTTPResponse(response, 3);
+                            return;
                         }
+
+                        //Send good response
+                        GTG.HTTPResponse(response, 0);
                     });
                 });
             });
