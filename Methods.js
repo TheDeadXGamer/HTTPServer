@@ -54,11 +54,11 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
                 GTG.HTTPResponse(response, 2);
                 return;
             }
-        });
 
-        //Send back good response and release the connection.
-        GTG.HTTPResponse(response, 0);
-        Connection.release();
+            //Send back good response and release the connection.
+            GTG.HTTPResponse(response, 0);
+            Connection.release();
+        });
     });
 }
 
@@ -203,8 +203,9 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
                             return;
                         }
 
-                        //Send good response
+                        //Send good response and release the connection
                         GTG.HTTPResponse(response, 0);
+                        Connection.release();
                     });
                 });
             });
