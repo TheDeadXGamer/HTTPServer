@@ -175,7 +175,7 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
                 }
 
                 //Check if the book already belongs to another student
-                Connection.query(`SELECT * FROM \`innehav\` WHERE \`BokID\` = '${Parameters.BookID}' AND \`Elev\` != '${Parameters.StudentID}';`, (SelectInnehavError, SelectInnehavResult) => {
+                Connection.query(`SELECT * FROM \`innehav\` WHERE \`BokID\` = '${Parameters.BookID}' AND \`ElevID\` != '${Parameters.StudentID}';`, (SelectInnehavError, SelectInnehavResult) => {
                     
                     //If the query goes wrong
                     if (SelectInnehavError) {
