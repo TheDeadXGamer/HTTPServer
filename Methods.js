@@ -193,8 +193,8 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
 
                     //Insert values into the table
                     const dateYear = new Date();
-                    Connection.query(`INSERT INTO \`innehav\` (\`Elev\`, \`Boknamn\`,\`BokID\`, \`Utdatum\`, \`Indatum\`)
-                    VALUES ('${SelectStudentResult[0].ID}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${dateYear.getFullYear()}-06-16')`, (InsertError) => {
+                    Connection.query(`INSERT INTO \`innehav\` (\`ElevID\`,\`ElevNamn\` ,\`Boknamn\`,\`BokID\`, \`Utdatum\`, \`Indatum\`)
+                    VALUES ('${SelectStudentResult[0].ID}','${SelectStudentResult[0].Förnamn + ' ' + SelectStudentResult[0].Efternamn}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${dateYear.getFullYear()}-06-16')`, (InsertError) => {
 
                         //If it can't be inserted
                         if (InsertError) {
