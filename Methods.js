@@ -96,11 +96,11 @@ module.exports.Check_Method = (response, Urlparameters, Pool) => {
         }
 
         //Check if the student in question already owns the book
-        Connection.query(`SELECT * FROM \`innehav\` WHERE \`BokID\` = '${Parameters.BookID}' AND \`Elev\` = '${Parameters.StudentID}';`, (SelectInnehavError, SelectInnehavResult) => {
+        Connection.query(`SELECT * FROM \`innehav\` WHERE \`BokID\` = '${Parameters.BookID}' AND \`ElevID\` = '${Parameters.StudentID}';`, (SelectInnehavError, SelectInnehavResult) => {
                         
             //If the query goes wrong
             if (SelectInnehavError) {
-                console.error(SelectBookError);
+                console.error(SelectInnehavError);
                 GTG.HTTPResponse(response, 2);
                 return;
             }
