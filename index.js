@@ -75,10 +75,12 @@ function getFunc(request, response) {
                     Joel.Initial_Request(response, Urlparameters, pool);
                     return;
                 
+                //The main portion of the interaction
                 case 'Main':
                     Joel.Check_Method(response, Urlparameters, pool);
                     return;
 
+                //In case another method or no method is chosen
                 default:
                     GTG.HTTPResponse(response, 2);
                     console.error('Client Error: Chosen method is not known.')

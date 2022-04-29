@@ -46,6 +46,7 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
                 return;
             }
 
+            //Prints the student that the ID is attached to (Used for debugging via console)
             console.log(QueryResult[0]);
 
             //If the ID doesn't exist in the DB
@@ -73,6 +74,7 @@ module.exports.Initial_Request = (response, Urlparameters, Pool) => {
  */
 module.exports.Check_Method = (response, Urlparameters, Pool) => {
 
+    //Create object with the ID's as properties
     const Parameters = {
     StudentID: Urlparameters.get('ID'),
     BookID: Urlparameters.get('BookID')
@@ -110,10 +112,12 @@ module.exports.Check_Method = (response, Urlparameters, Pool) => {
                 this.Return_Method(response, Parameters, Pool);
             }
 
+            //If the book is not in the table already
             else {
                 this.Loan_Method(response, Parameters, Pool);
             }
         });
+        //Release the pool connection
         Connection.release();
     });
 }
@@ -191,8 +195,10 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
                         return;
                     }
 
-                    //Insert values into the table
+                    //Get new date object to use in Insert
                     const dateYear = new Date();
+
+                    //Insert values into the table
                     Connection.query(`INSERT INTO \`innehav\` (\`ElevID\`,\`ElevNamn\` ,\`Boknamn\`,\`BokID\`, \`Utdatum\`, \`Indatum\`)
                     VALUES ('${SelectStudentResult[0].ID}','${SelectStudentResult[0].Förnamn + ' ' + SelectStudentResult[0].Efternamn}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${dateYear.getFullYear()}-06-16')`, (InsertError) => {
 
