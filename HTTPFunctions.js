@@ -1,6 +1,6 @@
 //HTTPFunctions.js
 
-//Include necessary modules
+//Include the http module
 const http = require('http');
 
 /**

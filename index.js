@@ -42,12 +42,14 @@ const pool = sql.createPool({
  * 
  */
 function getFunc(request, response) {
+
+    //Check if the request method is a GET method. E.g if the request was sent via "browser link"
     if (request.method == 'GET') {
 
         //Create URL object by using the url sent from client
         const url = new URL(`http://localhost:8080${request.url}`);
 
-        //On loaded page
+        //When page has loaded
         request.on('readable', () => {
 
             //Fetch URL parameters
@@ -93,5 +95,5 @@ function getFunc(request, response) {
 /**
  * Server object using `getFunc` as callback
  */
-const server = http.createServer(getFunc);  //Create HTTP server that listens on port 8080
-server.listen(8080);
+const server = http.createServer(getFunc);  //Create HTTP server
+server.listen(8080);    //Set thr server to listen on port 8080
