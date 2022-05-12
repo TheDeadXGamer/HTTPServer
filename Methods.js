@@ -196,11 +196,25 @@ module.exports.Loan_Method = (response, Parameters, Pool) => {
                     }
 
                     //Get new date object to use in Insert
-                    const dateYear = new Date();
+                    const date = new Date();
+
+                    //Create dateYear variable and intialise it
+                    var dateYear = 0;
+
+                    //Is it the month of August or later during the year?
+                    //If true, set the year to one year ahead.
+                    if(date.getMonth() >= 7){
+                        dateYear = date.getFullYear() + 1;
+                    }
+
+                    //If false, set to current year
+                    else {
+                        dateYear = date.getFullYear();
+                    }
 
                     //Insert values into the table
                     Connection.query(`INSERT INTO \`innehav\` (\`ElevID\`,\`ElevNamn\` ,\`Boknamn\`,\`BokID\`, \`Utdatum\`, \`Indatum\`)
-                    VALUES ('${SelectStudentResult[0].ID}','${SelectStudentResult[0].Förnamn + ' ' + SelectStudentResult[0].Efternamn}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${dateYear.getFullYear()}-06-16')`, (InsertError) => {
+                    VALUES ('${SelectStudentResult[0].ID}','${SelectStudentResult[0].Förnamn + ' ' + SelectStudentResult[0].Efternamn}','${SelectBookResult[0].Modell}','${SelectBookResult[0].ID}',CURDATE(),'${dateYear}-06-16')`, (InsertError) => {
 
                         //If it can't be inserted
                         if (InsertError) {
