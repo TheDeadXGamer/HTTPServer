@@ -119,7 +119,7 @@ const job = Schedule.scheduleJob({minute: 45}, () => {
     const currentDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`
 
     //QoL stuff for the console
-    console.log('Overdue book-check in progress...')
+    console.log(`Current Date: ${currentDate} \nOverdue book-check in progress...`);
 
     //Create new pool connection
     pool.getConnection((poolError, connection) => {
