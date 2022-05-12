@@ -146,6 +146,8 @@ const job = Schedule.scheduleJob({minute: 17}, () => {
             //For-each loop that executes for every element in the result array
             innehavResult.forEach((element) => {
                 
+                console.log(element);
+
                 //Select the student that corresponds to the id
                 connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${element.ElevID}'`, (elevError, elevResult) => {
 
