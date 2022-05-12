@@ -5,6 +5,8 @@ const sql = require('mysql2');
 const http = require('http');
 const GTG = require('./HTTPFunctions.js')
 const Joel = require('./Methods.js')
+const Schedule = require('node-schedule')
+const mailer = require('nodemailer');
 
 /**
  * Use settings to create an SQL pool
@@ -26,6 +28,15 @@ const pool = sql.createPool({
     "password": "kolja50",
     "database": "joelpeteket"
 });
+
+//Settings for mailing through nodejs
+const transporter = mailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'joelpeteket@gmail.com',
+      pass: 'gtg2022!'
+    }
+  });
 
 /**
  * Callback for `http.createServer(callback)`
@@ -97,3 +108,138 @@ function getFunc(request, response) {
  */
 const server = http.createServer(getFunc);  //Create HTTP server
 server.listen(8080);    //Set thr server to listen on port 8080
+
+//Create "job" that executes the code every day at 8 am UTC
+const job = Schedule.scheduleJob({hour: 8}, () => {
+
+    //Create new date object to use in the job
+    const date = new Date();
+
+    //Get the YYYY-MM-DD format of the date
+    const currentDate = `${date.getFullYear()}-${("0" + (d_t.getMonth() + 1)).slice(-2)}-${("0" + d_t.getDate()).slice(-2)}`
+
+    //Create new pool connection
+    pool.getConnection((poolError, connection) => {
+
+        if(poolError){
+            console.log(poolError)
+            return;
+        }
+
+        //Perform query to check if any books are overdue
+        connection.query(`SELECT * FROM \`innehav\` WHERE \`Påminnelse_1\` = '${currentDate}'`, (innehavError, innehavResult) => {
+
+            if(innehavError){
+                console.log(innehavError);
+                return;
+            }
+
+            //If no book needs to be reminded today
+            if(!innehavResult[0]) return;
+
+            //For-each loop that executes for every element in the result array
+            innehavResult.forEach((element) => {
+                
+                //Select the student that corresponds to the id
+                connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${element.ElevID}'`, (elevError, elevResult) => {
+
+                    //Error when executing query
+                    if(elevError){
+                        console.log(elevError);
+                        return;
+                    }
+                    
+                    //If the student can't be found in the database for whatever reason
+                    if(!elevResult[0]){
+                        console.log(`Unknown Error: Student not found in DB. Check BookID: ${element.BokID}`);
+                        return;
+                    }
+
+                    //The mail options to be used for the mail
+                    const mailoptions = {
+                        from: 'joelpeteket@gmail.com',
+                        to: 'myfriend@yahoo.com',
+                        subject: 'Påminnelse för bokinlämning',
+                        text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
+                        Namn på boken: ${element.boknamn}`
+                    }
+
+                    //Send a mail using the configured transporter and the mailoptions
+                    transporter.sendMail(mailoptions, (mailError, mailInfo) => {
+
+                        //If error, log the error in the console
+                        if (mailError) {
+                            console.log(mailError);
+                            return;
+                        } 
+
+                        //Else log response in console
+                        console.log('Email sent: ' + mailInfo.response);
+                        
+                    });
+                });
+            });
+        });
+
+        //Perform query to check if any books are overdue
+        connection.query(`SELECT * FROM \`innehav\` WHERE \`Påminnelse_2\` = '${currentDate}'`, (innehavError, innehavResult) => {
+
+            if(innehavError){
+                console.log(innehavError);
+                return;
+            }
+
+            //If no book needs to be reminded today
+            if(!innehavResult[0]) return;
+
+            //QoL stuff for console
+            console.log('Overdue book-check in progress...');
+
+            //For-each loop that executes for every element in the result array
+            innehavResult.forEach((element) => {
+                
+                //Select the student that corresponds to the id
+                connection.query(`SELECT * FROM \`elever\` WHERE \`ID\` = '${element.ElevID}'`, (elevError, elevResult) => {
+
+                    //Error when executing query
+                    if(elevError){
+                        console.log(elevError);
+                        return;
+                    }
+                    
+                    //If the student can't be found in the database for whatever reason
+                    if(!elevResult[0]){
+                        console.log(`Unknown Error: Student not found in DB. Check BookID: ${element.BokID}`);
+                        return;
+                    }
+
+                    //The mail options to be used for the mail
+                    const mailoptions = {
+                        from: 'youremail@gmail.com',
+                        to: `${elevResult[0].Mailadress}`,
+                        subject: 'Påminnelse för bokinlämning',
+                        text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
+                        Namn på boken: ${element.boknamn}`
+                    }
+
+                    //Send a mail using the configured transporter and the mailoptions
+                    transporter.sendMail(mailoptions, (mailError, mailInfo) => {
+
+                        //If error, log the error in the console
+                        if (mailError) {
+                            console.log(mailError);
+                            return;
+                        } 
+
+                        //Else log response in console
+                        console.log('Email sent: ' + mailInfo.response);
+                        
+                    });
+                });
+            });
+
+            //Release the connection
+            connection.release();
+        });
+    });
+});
