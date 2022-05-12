@@ -110,13 +110,16 @@ const server = http.createServer(getFunc);  //Create HTTP server
 server.listen(8080);    //Set thr server to listen on port 8080
 
 //Create "job" that executes the code every day at 8 am UTC
-const job = Schedule.scheduleJob({minute: 36}, () => {
+const job = Schedule.scheduleJob({minute: 45}, () => {
 
     //Create new date object to use in the job
     const date = new Date();
 
     //Get the YYYY-MM-DD format of the date
     const currentDate = `${date.getFullYear()}-${("0" + (d_t.getMonth() + 1)).slice(-2)}-${("0" + d_t.getDate()).slice(-2)}`
+
+    //QoL stuff for the console
+    console.log('Overdue book-check in progress...')
 
     //Create new pool connection
     pool.getConnection((poolError, connection) => {
@@ -135,7 +138,10 @@ const job = Schedule.scheduleJob({minute: 36}, () => {
             }
 
             //If no book needs to be reminded today
-            if(!innehavResult[0]) return;
+            if(!innehavResult[0]){
+                console.log('No book needs to be checked on the 1st today!');
+                return;
+            }
 
             //For-each loop that executes for every element in the result array
             innehavResult.forEach((element) => {
@@ -158,7 +164,7 @@ const job = Schedule.scheduleJob({minute: 36}, () => {
                     //The mail options to be used for the mail
                     const mailoptions = {
                         from: 'joelpeteket@gmail.com',
-                        to: 'myfriend@yahoo.com',
+                        to: `${elevResult[0].Mailadress}`,
                         subject: 'Påminnelse för bokinlämning',
                         text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
                         Namn på boken: ${element.boknamn}`
@@ -190,10 +196,10 @@ const job = Schedule.scheduleJob({minute: 36}, () => {
             }
 
             //If no book needs to be reminded today
-            if(!innehavResult[0]) return;
-
-            //QoL stuff for console
-            console.log('Overdue book-check in progress...');
+            if(!innehavResult[0]) {
+                console.log('No book needs to be checked on the 2nd today!');
+                return;
+            }
 
             //For-each loop that executes for every element in the result array
             innehavResult.forEach((element) => {
