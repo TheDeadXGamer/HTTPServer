@@ -116,7 +116,7 @@ const job = Schedule.scheduleJob({minute: 45}, () => {
     const date = new Date();
 
     //Get the YYYY-MM-DD format of the date
-    const currentDate = `${date.getFullYear()}-${("0" + (d_t.getMonth() + 1)).slice(-2)}-${("0" + d_t.getDate()).slice(-2)}`
+    const currentDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`
 
     //QoL stuff for the console
     console.log('Overdue book-check in progress...')
