@@ -31,9 +31,9 @@ const pool = sql.createPool({
 
 //Settings for mailing through nodejs
 const transporter = mailer.createTransport({
-    service: 'gmail',
+    service: 'hotmail',
     auth: {
-      user: 'joelpeteket@gmail.com',
+      user: 'joelpeteket@hotmail.com',
       pass: 'gtg2022!'
     }
   });
@@ -110,7 +110,7 @@ const server = http.createServer(getFunc);  //Create HTTP server
 server.listen(8080);    //Set thr server to listen on port 8080
 
 //Create "job" that executes the code every day at 8 am UTC
-const job = Schedule.scheduleJob({minute: 55}, () => {
+const job = Schedule.scheduleJob({minute: 17}, () => {
 
     //Create new date object to use in the job
     const date = new Date();
@@ -163,7 +163,7 @@ const job = Schedule.scheduleJob({minute: 55}, () => {
 
                     //The mail options to be used for the mail
                     const mailoptions = {
-                        from: 'joelpeteket@gmail.com',
+                        from: 'joelpeteket@hotmail.com',
                         to: `${elevResult[0].Mailadress}`,
                         subject: 'Påminnelse för bokinlämning',
                         text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
@@ -221,7 +221,7 @@ const job = Schedule.scheduleJob({minute: 55}, () => {
 
                     //The mail options to be used for the mail
                     const mailoptions = {
-                        from: 'youremail@gmail.com',
+                        from: 'joelpeteket@hotmail.com',
                         to: `${elevResult[0].Mailadress}`,
                         subject: 'Påminnelse för bokinlämning',
                         text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
