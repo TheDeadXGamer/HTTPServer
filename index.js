@@ -110,7 +110,7 @@ const server = http.createServer(getFunc);  //Create HTTP server
 server.listen(8080);    //Set thr server to listen on port 8080
 
 //Create "job" that executes the code every day at 8 am UTC
-const job = Schedule.scheduleJob({minute: 45}, () => {
+const job = Schedule.scheduleJob({minute: 48}, () => {
 
     //Create new date object to use in the job
     const date = new Date();
