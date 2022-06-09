@@ -29,15 +29,30 @@ const pool = sql.createPool({
     "database": "joelpeteket"
 });
 
-//Settings for mailing through nodejs
-const transporter = mailer.createTransport({
-    service: 'hotmail',
-    auth: {
-      user: 'joelpeteket@hotmail.com',
-      pass: 'gtg2022!'
-    }
-  });
+//Function for settings for mailing through nodejs
+function getTransporter(){
+    return mailer.createTransport({
+        service: 'hotmail',
+        auth: {
+        user: 'joelpeteket@hotmail.com',
+        pass: 'gtg2022!'
+        }
+    });
+}
 
+/**Function to get the options used for mailing through nodemailer
+ *  @param {sql.RowDataPacket[]} elevResult //Result array of student
+ *  @param {Object} element //Object of result array
+ */
+function getMailOptions(elevResult, element) {
+    return {                       
+        from: 'joelpeteket@hotmail.com',
+        to: `${elevResult[0].Mailadress}`,
+        subject: 'Påminnelse för bokinlämning',
+        text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
+        Namn på boken: ${element.boknamn}`
+    }
+}
 /**
  * Callback for `http.createServer(callback)`
  * ```js
@@ -161,17 +176,8 @@ const job = Schedule.scheduleJob({hour: 8}, () => {
                         return;
                     }
 
-                    //The mail options to be used for the mail
-                    const mailoptions = {
-                        from: 'joelpeteket@hotmail.com',
-                        to: `${elevResult[0].Mailadress}`,
-                        subject: 'Påminnelse för bokinlämning',
-                        text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
-                        Namn på boken: ${element.boknamn}`
-                    }
-
                     //Send a mail using the configured transporter and the mailoptions
-                    transporter.sendMail(mailoptions, (mailError, mailInfo) => {
+                    getTransporter().sendMail(getMailOptions(elevResult, element), (mailError, mailInfo) => {
 
                         //If error, log the error in the console
                         if (mailError) {
@@ -219,17 +225,8 @@ const job = Schedule.scheduleJob({hour: 8}, () => {
                         return;
                     }
 
-                    //The mail options to be used for the mail
-                    const mailoptions = {
-                        from: 'joelpeteket@hotmail.com',
-                        to: `${elevResult[0].Mailadress}`,
-                        subject: 'Påminnelse för bokinlämning',
-                        text: `Hej! Du har en lånad bok som ej är återlämnad. Se till att lämna in den snarast så att du slipper betala pengar för den!
-                        Namn på boken: ${element.boknamn}`
-                    }
-
                     //Send a mail using the configured transporter and the mailoptions
-                    transporter.sendMail(mailoptions, (mailError, mailInfo) => {
+                    getTransporter().sendMail(getMailOptions(elevResult, element), (mailError, mailInfo) => {
 
                         //If error, log the error in the console
                         if (mailError) {
